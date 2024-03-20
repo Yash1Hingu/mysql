@@ -1,0 +1,553 @@
+Views
+=====
+CREATE or replace  VIEW EMP_V1 AS SELECT EMPNO,ENAME,SAL FROM EMP;
+-> we can perform dml commands on view.what changes are done in view that reflect in main table.
+
+Lock the Table from read view:
+==============================
+mysql> lock table emp read;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into v1 values(8002,'prit','MANAGER');
+ERROR 1100 (HY000): Table 'v1' was not locked with LOCK TABLES
+
+
+
+Unlock the table:
+=================
+mysql> unlock tables;
+Query OK, 0 rows affected (0.00 sec)
+
+
+
+Lock the View:
+==============
+-> only perform select query.
+-> dml command can't perform.
+
+mysql> lock table v1 read;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> insert into v1 values(8002,'prit','MANAGER');
+ERROR 1099 (HY000): Table 'emp' was locked with a READ lock and can't be updated
+
+
+
+View with join:
+===============
+mysql> create or replace view emp_v2
+    -> as
+    -> select e.empno,e.ename,e.job,d.deptno,d.dname from emp e join dept d on
+    -> (d.deptno = e.deptno);
+
+
+See All views:
+==============
+(NOT WORK)
+mysql> select
+    -> table_schema,
+    -> table_name,
+    -> table_type
+    -> from information_schema.tables
+    -> where table_schema like 'n501' and table_type like 'view';
+
+(WORK) - CASE SENSETIVE.
+mysql> SELECT
+    -> TABLE_SCHEMA,
+    -> TABLE_NAME,
+    -> TABLE_TYPE
+    -> FROM
+    -> information_schema.TABLES
+    -> WHERE
+    -> TABLE_SCHEMA LIKE 'n501' AND TABLE_TYPE LIKE 'VIEW';
++--------------+------------+------------+
+| TABLE_SCHEMA | TABLE_NAME | TABLE_TYPE |
++--------------+------------+------------+
+| n501         | emp_v2     | VIEW       |
+| n501         | v1         | VIEW       |
++--------------+------------+------------+
+2 rows in set (0.00 sec)
+------------------------------------------------------------------
+-. data is case sensetive. so i need to pass VIEW.
+mysql> select
+    -> table_schema,
+    -> table_name,
+    -> table_type
+    -> from information_schema.tables
+    -> where
+    -> table_schema like 'n501' and table_type like 'VIEW';
+
+Show View Details:
+==================
+mysql> show create view v1;
+
+
+Alter view:
+===========
+
+alter single:
+-------------
+mysql> alter view v1 as select empno,ename,job,mgr from emp;
+-> adding mgr column.
+
+
+alter with join in view:
+------------------------
+mysql> alter view emp_v2 as select
+    -> e.empno,e.ename,e.job,e.mgr,d.deptno,d.dname from emp e join dept d on
+    -> (d.deptno = e.deptno);
+Query OK, 0 rows affected (0.01 sec)
+
+
+
+With Check Option View::
+========================
+These views will allow DML operation only when where condition is satisfied. 
+
+Ex:
+---
+Create or replace view Test_V12
+As select empno, ename, sal, deptno from emp Where deptno = 30 With check option;
+
+
+ex:
+---
+insert into test_v12 values(7143,'RAJESH',5000,30) //valid
+insert into test_v12 values(7323,'RAJESH',5000,10) //invalid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==========================================================================
+Exercises:
+----------
+salesman
+---------
+create below table.
+
+ salesman_id |    name    |   city   | commission 
+-------------+------------+----------+------------
+        5001 | James Hoog | New York |       0.15
+        5002 | Nail Knite | Paris    |       0.13  
+        5005 | Pit Alex   | London   |       0.11
+        5006 | Mc Lyon    | Paris    |       0.14
+        5007 | Paul Adam  | Rome     |       0.13
+        5003 | Lauson Hen | San Jose |       0.12
+
+create table saleman(salesman_id int,name varchar(20),city varchar(20),commission float)
+
+insert into saleman values (5001,'James Hoog','New York',0.15), 
+ 			     (5002,'Nail Knite','Paris',0.13),
+ 			     (5005,'Pit Alex','London',0.11),
+                              (5006,'Mc Lyon','Paris',0.14),
+				(5007,'Paul Adam','Rome',0.13),
+(5003,'Lauson Hen','San Jose',0.15);
+
+1. From the following table, create a view for those salespeople who belong to the city of New York.
+
+	mysql> create or replace view salesman_newyork as select * from saleman where city='New York';
+	Query OK, 0 rows affected (0.01 sec)
+
+	mysql> select * from salesman_newyork;
+	+-------------+------------+----------+------------+
+	| salesman_id | name       | city     | commission |
+	+-------------+------------+----------+------------+
+	|        5001 | James Hoog | New York |       0.15 |
+	+-------------+------------+----------+------------+
+	1 row in set (0.01 sec)
+
+2. From the following table, create a view for all salespersons. Return salesperson ID, name, and city.
+
+mysql> create or replace view salesman_s1 as select salesman_id,name,city from saleman;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from salesman_s1;
++-------------+------------+----------+
+| salesman_id | name       | city     |
++-------------+------------+----------+
+|        5001 | James Hoog | New York |
+|        5002 | Nail Knite | Paris    |
+|        5005 | Pit Alex   | London   |
+|        5006 | Mc Lyon    | Paris    |
+|        5007 | Paul Adam  | Rome     |
+|        5003 | Lauson Hen | San Jose |
++-------------+------------+----------+
+6 rows in set (0.00 sec)
+  
+
+3. From the following table, create a view to locate the salespeople in the city 'New York'.
+
+-> same as 1.
+
+4. From the following table, create a view to count the number of unique customers, compute the average and the total purchase amount of customer orders by each date.
+
+
+mysql> create or replace view v_2 as select ord_date,count(distinct(customer_id)) as uniqueCustomer,
+    -> avg(purch_amt) as avg,sum(purch_amt) as sum from orders_2 group by ord_date;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select * from v_2;
++------------+----------------+--------------------+--------------------+
+| ord_date   | uniqueCustomer | avg                | sum                |
++------------+----------------+--------------------+--------------------+
+| 2012-07-27 |              1 |   2400.60009765625 |   2400.60009765625 |
+| 2012-08-17 |              1 |              110.5 |              110.5 |
+| 2012-09-10 |              3 |  2326.383331298828 |  6979.149993896484 |
+| 2012-10-05 |              2 | 107.88000106811523 | 215.76000213623047 |
++------------+----------------+--------------------+--------------------+
+4 rows in set (0.01 sec)
+
+
+
+tables:
+-------- 
+Sample table: customer
+
+ customer_id |   cust_name    |    city    | grade | salesman_id 
+-------------+----------------+------------+-------+-------------
+        3002 | Nick Rimando   | New York   |   100 |        5001
+        3007 | Brad Davis     | New York   |   200 |        5001
+        3005 | Graham Zusi    | California |   200 |        5002
+        3008 | Julian Green   | London     |   300 |        5002
+        3004 | Fabian Johnson | Paris      |   300 |        5006
+        3009 | Geoff Cameron  | Berlin     |   100 |        5003
+        3003 | Jozy Altidor   | Moscow     |   200 |        5007
+        3001 | Brad Guzan     | London     |       |        5005
+
+
+create table customer_2(customer_id int,cust_name varchar(20),city varchar(10),grade int,salesman_id int);
+
+insert into customer_2 values(3002,'Nick Rimando','New York',100,5001);
+insert into customer_2 values(3007,'Brad Davis','New York',200 ,5001);
+insert into customer_2 values (3005,'Graham Zusi','California',200,5002);
+insert into customer_2 values (3008,'Julian Green',' London',300,5002);
+insert into customer_2 values (3004,'Fabian Johnson','Paris',300,5006);
+insert into customer_2 values (3009,'Geoff Cameron','Berlin',100,5003);
+insert into customer_2 values (3003,'Jozy Altidor','Moscow',200,5007);
+insert into customer_2 values (3001,' Brad Guzan','London',null,5005);
+
+orders:
+---------
+
+ord_no      purch_amt   ord_date    customer_id  salesman_id
+----------  ----------  ----------  -----------  -----------
+70001       150.5       2012-10-05  3005         5002
+70009       270.65      2012-09-10  3001         5005
+70002       65.26       2012-10-05  3002         5001
+70004       110.5       2012-08-17  3009         5003
+70007       948.5       2012-09-10  3005         5002
+70005       2400.6      2012-07-27  3007         5001
+70008       5760        2012-09-10  3002         5001
+
+create table orders_2 (ord_no int,purch_amt float,ord_date date,customer_id int,salesman_id int);
+
+insert into orders_2 values(70001,150.5,'2012-10-05',3005,5002);
+insert into orders_2 values(70009,270.65,'2012-09-10',3001,5005);
+insert into orders_2 values(70002,65.26,'2012-10-05',3002,5001);
+insert into orders_2 values(70004,110.5,'2012-08-17',3009,5003);
+insert into orders_2 values(70007,948.5,'2012-09-10',3005,5002);
+insert into orders_2 values(70005,2400.6,'2012-07-27',3007,5001);
+insert into orders_2 values(70008,5760,'2012-09-10',3002,5001);
+
+
+
+Subquery:
+=========
+
+Write 2nd highest salary.
+mysql> select max(sal) from emp where sal!=(select max(sal) from emp);
++----------+
+| max(sal) |
++----------+
+|  4000.00 |
++----------+
+1 row in set (0.00 sec)
+
+
+Write 3rd highest salary.
+mysql> select max(sal) from emp where sal<(select max(sal) from emp where sal < (select max(sal) from emp)) ;
++----------+
+| max(sal) |
++----------+
+|  3000.00 |
++----------+
+1 row in set (0.00 sec)
+
+
+IN:
+===
+-> muliple column query.
+select * from emp where (job,sal) IN(select job,sal from emp where deptno=30);
+get all job,sal who have deptno number 30 and get all columns for that records.
+
+
+
+Co-RELATED SUBQUERY:
+--------------------
+When subquery is executed in relation to parent query, it is called co−related subquery.
+
+*write a query to display all the rows who are having salary greater than AVG salary his department?
+
+Ex:
+----
+Select * from emp e where sal > (select AVG(sal) from emp where deptno = e.deptno);
+
+Execution:
+----------
+The above example is a co−related subquery.
+In co−related subquery, parent query is executed first and then subquery is executed in relation to result of parent query(parenet table alias name).
+
+
+
+Exercises On Subqueries:
+-------------------------
+1. Write a query to display the employee name and hiredate for all
+employees in the same department as Blake. Exclude Blake.
+
+mysql> select ename,hiredate from emp where deptno=(select deptno from emp where ename='BLAKE') AND ename!='BLAKE';
++--------+------------+
+| ename  | hiredate   |
++--------+------------+
+| ALLEN  | 1981-02-20 |
+| WARD   | 1981-02-22 |
+| MARTIN | 1981-09-28 |
+| TURNER | 1981-09-08 |
+| JAMES  | 1981-12-03 |
+| RAJESH | NULL       |
++--------+------------+
+6 rows in set (0.00 sec)
+
+2.Create a query to display the employee number and name for all employees who earn
+more than the average salary. Sort the results in descending order of salary.
+
+mysql> select empno,ename from emp where sal>(select avg(sal) from emp) order by sal desc;
++-------+--------+
+| empno | ename  |
++-------+--------+
+|  7839 | KING   |
+|  7143 | RAJESH |
+|  1001 | gopal  |
+|  7788 | SCOTT  |
+|  7902 | FORD   |
+|  7566 | JONES  |
+|  7698 | BLAKE  |
+|  7782 | CLARK  |
++-------+--------+
+8 rows in set (0.00 sec)
+
+
+3.Write a query to display the employee number and name for all
+employees who work in a department with any employee whose name
+contains a T. 
+
+mysql> select empno,ename from emp where deptno = ANY(select deptno from emp where en
+ame like '%T%');
++-------+--------+
+| empno | ename  |
++-------+--------+
+|  7369 | SMITH  |
+|  7499 | ALLEN  |
+|  7521 | WARD   |
+|  7566 | JONES  |
+|  7654 | MARTIN |
+|  7698 | BLAKE  |
+|  7788 | SCOTT  |
+|  7844 | TURNER |
+|  7876 | ADAMS  |
+|  7900 | JAMES  |
+|  7902 | FORD   |
+|  7143 | RAJESH |
++-------+--------+
+12 rows in set (0.00 sec)
+
+
+4.Display the employee name, department number, and job title for all
+employees whose department location is Dallas. 
+
+
+mysql> select ename,deptno,job from emp where deptno = ANY(select deptno from dept wh
+ere loc='DALLAS');
++-------+--------+---------+
+| ename | deptno | job     |
++-------+--------+---------+
+| SMITH |     20 | CLERK   |
+| JONES |     20 | MANAGER |
+| SCOTT |     20 | ANALYST |
+| ADAMS |     20 | CLERK   |
+| FORD  |     20 | ANALYST |
++-------+--------+---------+
+5 rows in set (0.00 sec)
+
+
+5.Display the employee name and salary of all employees who report to King.
+
+mysql> select ename,sal from emp where mgr=(select empno from emp where ename='KING')
+;
++-------+---------+
+| ename | sal     |
++-------+---------+
+| JONES | 2975.00 |
+| BLAKE | 2850.00 |
+| CLARK | 2450.00 |
++-------+---------+
+3 rows in set (0.00 sec)
+
+
+
+dense_rank():
+=============
+-> normal ranking.
+select empno,ename,dense_rank() over (order by sal) from emp;
++-------+--------+----------------------------------+
+| empno | ename  | dense_rank() over (order by sal) |
++-------+--------+----------------------------------+
+|  8001 | yash   |                                1 |
+|  8002 | prit   |                                1 |
+|  7369 | SMITH  |                                2 |
+|  7900 | JAMES  |                                3 |
+|  7876 | ADAMS  |                                4 |
+|  7521 | WARD   |                                5 |
+|  7654 | MARTIN |                                5 |
+
+
+mysql> select empno,ename,sal,deptno,dense_rank() over (partition by deptno order by
+sal) dense from emp;
+
+
+rank():
+=======
+mysql> select empno,ename,sal,deptno,rank() over (order by sal) dense from emp;
++-------+--------+---------+--------+-------+
+| empno | ename  | sal     | deptno | dense |
++-------+--------+---------+--------+-------+
+|  8001 | yash   |    NULL |   NULL |     1 |
+|  8002 | prit   |    NULL |   NULL |     1 |
+|  7369 | SMITH  |  800.00 |     20 |     3 |
+|  7900 | JAMES  |  950.00 |     30 |     4 |
+|  7876 | ADAMS  | 1100.00 |     20 |     5 |
+|  7521 | WARD   | 1250.00 |     30 |     6 |     -> 6 ocuuros 2 times.
+|  7654 | MARTIN | 1250.00 |     30 |     6 |  -> 
+|  7934 | MILLER | 1300.00 |     10 |     8 |   -> 6+2=8
+|  7844 | TURNER | 1500.00 |     30 |     9 |
+|  7499 | ALLEN  | 1600.00 |     30 |    10 |
+|  7782 | CLARK  | 2450.00 |     10 |    11 |
+|  7698 | BLAKE  | 2850.00 |     30 |    12 |
+|  7566 | JONES  | 2975.00 |     20 |    13 |
+|  7788 | SCOTT  | 3000.00 |     20 |    14 |
+|  7902 | FORD   | 3000.00 |     20 |    14 |
+|  1001 | gopal  | 4000.00 |   NULL |    16 |
+|  7839 | KING   | 5000.00 |     10 |    17 |
+|  7143 | RAJESH | 5000.00 |     30 |    17 
++-------+--------+---------+--------+-------+
+18 rows in set (0.00 sec)
+
+
+Write query to get 2nd highest salary using subquery and dense_rank().
+
+Sol:
+----
+mysql> select distinct sal from (select empno,ename,sal,dense_rank() over (order by sal desc) as dnk from emp) dnkemp where dnkemp.dnk = 2;
++---------+
+| sal     |
++---------+
+| 4000.00 |
++---------+
+1 row in set (0.00 sec)
+
+Show particuler columns:
+-------------------------
+
+mysql> select distinct sal,ename,empno from (select empno,ename,sal,dense_rank() over
+ (order by sal desc) as dnk from emp) dnkemp where dnkemp.dnk = 2;
++---------+-------+-------+
+| sal     | ename | empno |
++---------+-------+-------+
+| 4000.00 | gopal |  1001 |
++---------+-------+-------+
+
+
+
+
+
+
+==================================================================='
+
+EXERCISE ON SUBQUERIES: USE EMP AND DEPT
+------------------------------------------
+
+1. Display the names and job titles of all employees with the same job
+     as Jones.
+
+mysql> select ename,job from emp where job = (select job from emp where ename='JONES'
+
+    -> );
++-------+---------+
+| ename | job     |
++-------+---------+
+| JONES | MANAGER |
+| BLAKE | MANAGER |
+| CLARK | MANAGER |
+| yash  | MANAGER |
+| prit  | MANAGER |
++-------+---------+
+5 rows in set (0.00 sec)
+
+
+2. Display the names and department name of all employees 
+   working in the same city as Jones.
+
+mysql> select ename from emp where deptno=(select deptno from dept where deptno=(select deptno from emp where ename='JONES'));
+
+3. Display the name of the employee whose salary is the lowest.
+
+mysql> select ename from emp where sal=(select min(sal) from emp);
++-------+
+| ename |
++-------+
+| SMITH |
++-------+
+1 row in set (0.00 sec)
+
+
+4. Display the names of all employees except the lowest paid.
+
+
+
+5. Display the names of all employees whose job title is 
+    the same as anyone in the sales dept.
+
+6. Display the names of all employees who work in a department 
+   that employs an analyst.
+
+7. Display the names of all employees with their job title, 
+   their current salary and their salary following a 10% pay 
+   rise for clerks and a 7% pay rise for all other employees
+
+8. Display the names of all employees with their salary and
+   commission earned. Employees with a null
+   commission eld should have 0 in the commission column.
+    SELECT ename, sal, comm FROM emp WHERE comm IS NOT
+
+9. Display the names of ALL employees with the total 
+   they have earned (ie. salary plus commission).
+
+
+
+
+

@@ -1,0 +1,250 @@
+
+
+see current selected db:
+--------------------------
+select database();
+
+create table emp13(empno int,
+ename varchar(20),
+sal decimal(10,2),
+hiredate date,
+job varchar(10));
+
+to show the schema or structure:
+=================================
+ex:
+---------------
+describe emp13;
+
+DDL:
+
+Insert:
+=================
+
+add data in row:
+------------------------
+insert into emp13 values(1001,'yash',4000,'2021-03-23','hr');
+
+insert for specific column:
+----------------------------
+insert into emp13 (empno,ename,sal) values(1001,'yash','hr');
+
+insert multiple row:
+----------------------------
+insert into emp13 values(1005,'jeet',9000,'2001-03-23','hr'),
+(1006,'nishit',8000,'2018-03-23','operator');
+
+insert into emp13 (empno,ename,sal,hiredate,job) values(1005,'jeet',9000,'2001-03-23','hr'),
+(1006,'nishit',8000,'2018-03-23','operator');
+
+
+Alter:
+=================
+
+add column:
+------------------------
+alter table emp13 add mobileno int(10);
+alter table emp13 add(address varchar(20),deptno int);
+
+change datatype of column:
+---------------------------
+*column should be empty.
+alter table emp13 modify job varchar(20);
+
+delete table column:
+--------------------------
+alter table emp13 drop column address;
+
+add key in table:
+---------------------------
+alter table emp13 add primary key(empno);
+
+rename the table:
+--------------------------
+rename table emp13 to employee;
+
+
+Truncate:
+--------------------
+truncate table employee;
+-> clear all data in table.
+-> we can't rollbase data.
+-> in delete we can rollback data.
+
+Drop:
+----------------------
+drop table employee;
+-> remove table.
+
+
+insert data from one table to another:
+-----------------------------------------
+mysql> create table emp_select(empno int,ename varchar(20),sal int);
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> insert into emp_select select empno,ename,sal from emp;
+Query OK, 14 rows affected (0.01 sec)
+Records: 14  Duplicates: 0  Warnings: 
+
+
+Update:
+=============================
+
+update single data in table:
+update emp13 set mobileno=987654321 where empno=1001;
+
+update multiple data in table:
+update emp13 set mobileno=765432921,depto=2 where empno=1002;
+
+subquery:
+update emp13 set depto=(select deptno from emp where empno=7566) where empno=1003;
+
+Delete:
+===============================
+
+delete row:
+------------------------
+delete from emp13 where empno=1006;
+
+
+Constraints:
+===============================================
+add at 
+1. column level
+2. table level
+3. alter level
+
+
+add not null:(column level)
+--------------------------------------
+create table emp14(empno int not null,
+ename varchar(10),
+sal decimal (10,2));
+
+
+check:(gender take only two value)(column level).
+----------------------------------------
+create table emp15(emno int not null,
+    -> ename varchar(10),
+    -> sal decimal(10,2),
+    -> gender varchar(1) check(gender='M' or gender='F'),
+    -> job varchar(10));
+insert into emp15 values(1,'yash',1000,'S','hr');
+ERROR 3819 (HY000): Check constraint 'emp15_chk_1' is violated.
+
+
+check (table level):
+------------------------------------
+create table emp15(emno int not null,
+    -> ename varchar(10),
+    -> sal decimal(10,2),
+    -> gender varchar(1),
+    -> job varchar(10),
+    -> check(gender='M' or gender='F'));
+
+
+drop the constraint:
+---------------------------------------------
+alter table emp15 drop constraint emp15_chk_1;
+
+
+add check(alter level):
+-------------------------------------------
+create table emp15(emno int not null,
+    -> ename varchar(10),
+    -> sal decimal(10,2),
+    -> gender varchar(1),
+    -> job varchar(10));
+alter table emp15 add constraint emp15_gn_ck1 check(gender='M' or gender='F');
+
+
+show constraint:
+-----------------------
+show create table emp15;
+
+
+unique (allow null,not repeate):
+----------------------------------
+ create table emp15(empno int unique,
+    -> ename varchar(10),
+    -> sal decimal(10,2));
+
+
+primary key(unique + not null):
+----------------------------------
+-> in table 1 primary ket exist.
+-> column level:
+create table emp15(empno int primary key,
+    ename varchar(10),
+    sal decimal(10,2));
+
+-> table level:
+create table emp15(empno int,
+    ename varchar(10),
+    sal decimal(10,2),
+    primary key(empno));
+
+
+foreign key(REFERENCES):
+==========================
+-> duplicate value
+-> null value.
+-> any number of fk allow in table upto 32.
+
+parent table:
+-------------
+
+cource:
+-------
+cid(pk) cname fee
+create table cource(cid int,
+    -> cname varchar(10),
+    -> fee int,
+    -> primary key(cid));
+-----------------------------
+insert into cource values(1,'c++',5000),(2,'web',8000),(3,'python',9000); 
+
+child table:
+------------
+
+student:
+--------
+sid(pk) sname addres cid(fk)
+create table student(sid int,
+    -> sname varchar(10),
+    -> addrs varchar(10),
+    -> cid int,
+    -> primary key(sid),
+    -> foreign key(cid) REFERENCES cource(cid));
+-------------------------------------------------
+insert into student values(101,'yash','anand',1);
+
+JOIN:
+=====
+
+Quesion:
+========
+mysql> select * from users;
++------+-------------------+
+| id   | email             |
++------+-------------------+
+|    1 | yash234@gmail.com |
+|    2 | smit456@gmail.com |
+|    3 | yash234@gmail.com |
++------+-------------------+
+3 rows in set (0.01 sec)
+---> delete email which have id=3 because it is duplicate of id=1's email.
+
+answer:
+=======
+mysql> delete u1 from users u1 join users u2
+    -> where u1.id > u2.id and u1.email=u2.email;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from users;
++------+-------------------+
+| id   | email             |
++------+-------------------+
+|    1 | yash234@gmail.com |
+|    2 | smit456@gmail.com |
++------+-------------------+

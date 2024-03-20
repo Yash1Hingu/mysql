@@ -1,0 +1,767 @@
+Left Outer Join:
+================
+-> outer is optional, left join alos.
+
+left table:
+-----------
+dept table
+
+right table:
+------------
+emp table;
+
+select e.empno,e.ename,e.sal,d.deptno,d.dname,d.loc from dept d left join emp e on (
+    -> d.deptno = e.deptno);
+
+
+
+Full outer join:
+================
+-> not work in mysql.
+-> perform using union in left & right join.
+
+Ex:
+===
+select e.empno,e.ename,e.sal,d.deptno,d.dname,d.loc from emp e left join dept d on (
+    -> d.deptno = e.deptno)
+    -> union
+    -> select e.empno,e.ename,e.sal,d.deptno,d.dname,d.loc from emp e right join dept d on (
+    -> d.deptno = e.deptno);
+
+
+Que:
+====
+empno,ename,sal,deptno,dname,loc from emp & dept where deptno 20.
+
+Sol:
+====
+select e.empno,e.ename,e.sal,d.deptno,d.dname,d.loc from emp e,dept d
+    -> where d.deptno = e.deptno and
+    -> d.deptno = 20;
+
+or
+
+select e.empno,e.ename,e.sal,d.deptno,d.dname,d.loc from emp e join dept d
+    -> on d.deptno = e.deptno
+    -> and d.deptno =20;
+
+
+Self Join:
+==========
+-> join with it self(table).
+
+Que:
+====
+employees manger.
+
+Sol:
+====
+select e.ename,m.ename as manager from emp e join emp m on(e.mgr = m.empno);
+
+
+1)WRITE A NON-EQUI JOIN QUERY 
+TO GET EMPNO,ENAME,SAL FROM EMP
+GRADE FROM SAL GRADE
+AND DISPLAY SALARIES BASED ON E.SAL COLUMN BETWEEN
+THE RANGE OF LOSAL AND HISAL COLUMNS OF SALGRADE TABLE.
+
+SOL:
+=====
+
+SELECT E.EMPNO,E.ENAME,E.SAL,S.GRADE
+FROM EMP E,SALGRADE S WHERE E.SAL BETWEEN S.LOSAL AND S.HISAL;
+
+
+CROSS JOIN:
+ ===========
+ 
+ THIS PERFORMS CARTIESAN PRODUCT
+
+ EX:
+ ===
+
+ WRITE A QUERY TO PERFORM CROSS JOIN USING DEPT,EMP
+
+ DEPT--5
+ EMP --15
+
+ CROSS JOIN:- 5*15=75 RECORDS.
+
+ SOL:
+ ====
+ SELECT E.EMPNO,E.ENAME,D.DEPTNO,D.DNAME FROM 
+ DEPT D CROSS JOIN EMP E;
+
+Equi Join           VS        Natural Join
+-require where           -not require where.
+-perform explicitly      -perform implocity same column.
+same column
+
+natural join:
+=============
+-> must be same column name in both table.
+-> otherwise perform cross join.
+
+
+Que:
+====
+join query to get first_name,last_name from student and name from cource_5
+
+Sol:
+====
+
+mysql> select * from student_5;
++----+------------+-----------+
+| id | first_name | last_name |
++----+------------+-----------+
+|  1 | Shreya     | Bain      |
+|  2 | Rianna     | Foster    |
+|  3 | Yosef      | Naylor    |
++----+------------+-----------+
+3 rows in set (0.00 sec)
+
+mysql> select * from course_5;
++------+--------------------+------------+
+| id   | name               | teacher_id |
++------+--------------------+------------+
+|    1 | Database design    |          1 |
+|    2 | English literature |          2 |
+|    3 | Python programming |          1 |
++------+--------------------+------------+
+3 rows in set (0.00 sec)
+
+mysql> select * from student_course;
+ERROR 1146 (42S02): Table 'n501.student_course' doesn't exist
+mysql> select * from student_cource;
++------------+-----------+
+| student_id | cource_id |
++------------+-----------+
+|          1 |         2 |
+|          1 |         3 |
+|          2 |         1 |
+|          2 |         2 |
+|          2 |         3 |
+|          3 |         1 |
++------------+-----------+
+6 rows in set (0.00 sec)
+
+mysql> select s.first_name,s.last_name,c.name from student_5 s,course_5 c,student_cource sc
+    -> where s.id = sc.student_id and c.id = sc.cource_id;
++------------+-----------+--------------------+
+| first_name | last_name | name               |
++------------+-----------+--------------------+
+| Shreya     | Bain      | English literature |
+| Shreya     | Bain      | Python programming |
+| Rianna     | Foster    | Database design    |
+| Rianna     | Foster    | English literature |
+| Rianna     | Foster    | Python programming |
+| Yosef      | Naylor    | Database design    |
++------------+-----------+
+
+
+Opertors:
+=========
+
+not equal
+between
+>
+<
+=
+or
+and
+
+like:
+=====
+select * from emp where ename like 's%';
+select * from emp where ename like 'A_L%';
+
+order by:
+=========
+
+sort by name:
+--------------
+select * from emp order by sal;
+
+sort by column nu:
+------------------
+select * from emp order by 6;
+
+
+max,min,sum,avg:
+-----------------
+select max(sal) MaxSalary,min(sal) minSalary,avg(sal) averagesal,sum(sal) sum from emp;
+
+count:
+------
+-> ignore null values.
+
+select count(sal),count(comm) from emp;
++------------+-------------+
+| count(sal) | count(comm) |
++------------+-------------+
+|         15 |           4 |
++------------+-------------+
+
+is:
+---
+-> for comparing null values use is instend of =,!= opertors.
+select * from emp where comm is not null;
+
+
+ifnull:
+-------
+-> show null value as 0.00.
+select comm,ifnull(comm,0) from emp;
+
+group by:
+---------
+select deptno,sum(sal) salary from emp group by deptno;
++--------+----------+
+| deptno | salary   |
++--------+----------+
+|     20 | 10875.00 |
+|     30 |  9400.00 |
+|     10 |  8750.00 |
+|   NULL |  4000.00 |
++--------+----------+
+
+
+how many employees working?
+---------------------------
+select deptno,sum(sal),count(deptno) as salary from emp group by deptno;
++--------+----------+--------+
+| deptno | sum(sal) | salary |
++--------+----------+--------+
+|     20 | 10875.00 |      5 |
+|     30 |  9400.00 |      6 |
+|     10 |  8750.00 |      3 |
+|   NULL |  4000.00 |      0 |
++--------+----------+--------+
+
+order:
+------
+where --> group by --> having --> order by
+
+
+JOIN QUE:
+=========
+
+Q1:
+===
+select e.ename,d.dname from emp e join dept d on d.deptno = e.deptno;
++--------+------------+
+| ename  | dname      |
++--------+------------+
+| SMITH  | RESEARCH   |
+| ALLEN  | SALES      |
+| WARD   | SALES      |
+| JONES  | RESEARCH   |
+| MARTIN | SALES      |
+| BLAKE  | SALES      |
+| CLARK  | ACCOUNTING |
+| SCOTT  | RESEARCH   |
+| KING   | ACCOUNTING |
+| TURNER | SALES      |
+| ADAMS  | RESEARCH   |
+| JAMES  | SALES      |
+| FORD   | RESEARCH   |
+| MILLER | ACCOUNTING |
++--------+------------+
+
+Q2:
+===
+select d.dname name,count(e.empno) from emp e,dept d where e.deptno = d.deptno group by name;
++------------+----------------+
+| name       | count(e.empno) |
++------------+----------------+
+| RESEARCH   |              5 |
+| SALES      |              6 |
+| ACCOUNTING |              3 |
++------------+----------------+
+
+Q3:
+===
+select d.dname dname,e.ename from dept d join emp e on d.deptno = e.deptno where e.job
+='MANAGER';
++------------+-------+
+| dname      | ename |
++------------+-------+
+| ACCOUNTING | CLARK |
+| RESEARCH   | JONES |
+| SALES      | BLAKE |
++------------+-------+
+
+
+Q4:
+===
+select e.ename Employee,m.ename Boss from emp e join emp m on m.empno =e.mgr;
++----------+-------+
+| Employee | Boss  |
++----------+-------+
+| FORD     | JONES |
+| SCOTT    | JONES |
+| JAMES    | BLAKE |
+| TURNER   | BLAKE |
+| MARTIN   | BLAKE |
+| WARD     | BLAKE |
+| ALLEN    | BLAKE |
+| MILLER   | CLARK |
+| ADAMS    | SCOTT |
+| CLARK    | KING  |
+| BLAKE    | KING  |
+| JONES    | KING  |
+| SMITH    | FORD  |
++----------+-------+
+
+
+Q5:
+===
+select e1.ename,e2.ename as mgrname from emp e1 left join emp e2 on e1.mgr = e2.empno;
++--------+---------+
+| ename  | mgrname |
++--------+---------+
+| SMITH  | FORD    |
+| ALLEN  | BLAKE   |
+| WARD   | BLAKE   |
+| JONES  | KING    |
+| MARTIN | BLAKE   |
+| BLAKE  | KING    |
+| CLARK  | KING    |
+| SCOTT  | JONES   |
+| KING   | NULL    |
+| TURNER | BLAKE   |
+| ADAMS  | SCOTT   |
+| JAMES  | BLAKE   |
+| FORD   | JONES   |
+| MILLER | CLARK   |
+| gopal  | NULL    |
++--------+---------+
+15 rows in set (0.01 sec)
+
+
+Q6:
+===
+ select m.mgr,count(m.mgr) as noOfEmp,e.ename as mgrname from emp e join emp m
+    -> on e.empno = m.mgr group by m.mgr,e.ename;
++------+---------+---------+
+| mgr  | noOfEmp | mgrname |
++------+---------+---------+
+| 7902 |       1 | FORD    |
+| 7698 |       5 | BLAKE   |
+| 7839 |       3 | KING    |
+| 7566 |       2 | JONES   |
+| 7788 |       1 | SCOTT   |
+| 7782 |       1 | CLARK   |
++------+---------+---------+
+
+
+
+Q7:
+===
+select m.mgr,count(m.mgr) as noOfEmp,e.ename as mgrname from emp e join emp m
+    -> on e.empno = m.mgr group by m.mgr,e.ename order by noOfEmp desc;
++------+---------+---------+
+| mgr  | noOfEmp | mgrname |
++------+---------+---------+
+| 7698 |       5 | BLAKE   |
+| 7839 |       3 | KING    |
+| 7566 |       2 | JONES   |
+| 7902 |       1 | FORD    |
+| 7788 |       1 | SCOTT   |
+| 7782 |       1 | CLARK   |
++------+---------+---------+
+
+
+String Functions:
+=================
+
+1. ASCII(str)
+--------------
+Returns the ASCII value of the leftmost character of the string str.
+
+Ex:
+---
+mysql> select ascii('y');
++------------+
+| ascii('y') |
++------------+
+|        121 |
++------------+
+1 row in set (0.01 sec)
+
+mysql> select ascii('Y');
++------------+
+| ascii('Y') |
++------------+
+|         89 |
++------------+
+1 row in set (0.00 sec)
+
+
+
+2.CHAR_LENGTH(str)
+------------------
+Returns the length of the string str in characters.
+
+Ex:
+---
+select char_length('welcome');
++------------------------+
+| char_length('welcome') |
++------------------------+
+|                      7 |
++------------------------+
+
+
+select ename,char_length(ename) len from emp;
++--------+------+
+| ename  | len  |
++--------+------+
+| SMITH  |    5 |
+| ALLEN  |    5 |
+| WARD   |    4 |
+| JONES  |    5 |
+| MARTIN |    6 |
+| BLAKE  |    5 |
+| CLARK  |    5 |
+| SCOTT  |    5 |
+| KING   |    4 |
+| TURNER |    6 |
+| ADAMS  |    5 |
+| JAMES  |    5 |
+| FORD   |    4 |
+| MILLER |    6 |
+| gopal  |    5 |
++--------+------+
+
+
+3.Concat:
+-------
+select concat('hello ',ename) as concat from emp;
++--------------+
+| concat       |
++--------------+
+| hello SMITH  |
+| hello ALLEN  |
+| hello WARD   |
+| hello JONES  |
+| hello MARTIN |
+| hello BLAKE  |
+| hello CLARK  |
+
+
+4.delimeter:
+----------
+delimeter //
+ select concat('hello ',ename) as concat from emp;
+    -> //
+-> query terminate after only // not by ;
+
+delimeter ;
+ select concat('hello ',ename) as concat from emp;
+
+
+5.concat_ws:
+----------
+->concat string by given charcater.
+
+ select concat_ws('#','hello','hi','welcome') as concat_ws;
++------------------+
+| concat_ws        |
++------------------+
+| hello#hi#welcome |
++------------------+
+
+
+6.INSERT(str,pos,len,newstr);
+-----------------------------
+select insert('welcome',3,3,'aaa');
++-----------------------------+
+| insert('welcome',3,3,'aaa') |
++-----------------------------+
+| weaaame                     |
++-----------------------------+
+
+
+7.instr(str,substr)
+--------------------
+select instr('foobr','oo');
++---------------------+
+| instr('foobr','oo') |
++---------------------+
+|                   2 |
++---------------------+
+
+
+8.lcase()/lower()/ucase()/upper():
+----------------------------------
+
+mysql> select lower('heOOO');
++----------------+
+| lower('heOOO') |
++----------------+
+| heooo          |
++----------------+
+1 row in set (0.00 sec)
+
+mysql> select upper('heOOO');
++----------------+
+| upper('heOOO') |
++----------------+
+| HEOOO          |
++----------------+
+1 row in set (0.00 sec)
+
+
+9. left() / right():
+---------------------
+mysql> select left('hello',3);
++-----------------+
+| left('hello',3) |
++-----------------+
+| hel             |
++-----------------+
+1 row in set (0.00 sec)
+
+mysql> select right('hello',3);
++------------------+
+| right('hello',3) |
++------------------+
+| llo              |
++------------------+
+1 row in set (0.00 sec)
+
+select left(ename,3) from emp;
++---------------+
+| left(ename,3) |
++---------------+
+| SMI           |
+| ALL           |
+| WAR           |
+| JON           |
+| MAR           |
+| BLA           |
+.....
+
+
+10. length(ename):
+-------------------
+select ename ,length(ename) from emp;
++--------+---------------+
+| ename  | length(ename) |
++--------+---------------+
+| SMITH  |             5 |
+| ALLEN  |             5 |
+| WARD   |             4 |
+| JONES  |             5 |
+| MARTIN |             6 |
+| BLAKE  |             5 |
+
+
+11. ltrim / rtrim / trim:
+-------------------------
+mysql> select ltrim('                              hello') str;
++-------+
+| str   |
++-------+
+| hello |
++-------+
+1 row in set (0.00 sec)
+
+mysql> select trim('                              hello') str;
++-------+
+| str   |
++-------+
+| hello |
++-------+
+1 row in set (0.00 sec)
+
+mysql> select rtrim('hello                        ') str;
++-------+
+| str   |
++-------+
+| hello |
++-------+
+1 row in set (0.00 sec)
+
+
+
+12.quote()
+----------
+select quote(ename) from emp;
++--------------+
+| quote(ename) |
++--------------+
+| 'SMITH'      |
+| 'ALLEN'      |
+
+
+13.replace(str,'c','a'):
+------------------------
+select ename,replace(ename,'S','A') from emp;
++--------+------------------------+
+| ename  | replace(ename,'S','A') |
++--------+------------------------+
+| SMITH  | AMITH                  |
+| ALLEN  | ALLEN                  |
+
+
+14.reverse('welcome'):
+----------------------
+select ename,reverse(ename) reverse from emp;
++--------+---------+
+| ename  | reverse |
++--------+---------+
+| SMITH  | HTIMS   |
+| ALLEN  | NELLA   |
+
+
+15.substr(str,pos,len):
+-----------------------
+select ename,substr(ename,2),substr(ename,2,2) from emp;
++--------+-----------------+-------------------+
+| ename  | substr(ename,2) | substr(ename,2,2) |
++--------+-----------------+-------------------+
+| SMITH  | MITH            | MI                |
+| ALLEN  | LLEN            | LL                |
+| WARD   | ARD             | AR                |
+
+
+select ename,substr(ename,-4,3) from emp;
++--------+--------------------+
+| ename  | substr(ename,-4,3) |
++--------+--------------------+
+| SMITH  | MIT                |
+| ALLEN  | LLE                |
+| WARD   | WAR                |
+
+
+
+Like Questions:
+===============
+
+Q1:
+===
+ select ename from emp where ename like '%s';
++-------+
+| ename |
++-------+
+| JONES |
+| ADAMS |
+| JAMES |
++-------+
+
+Q2:
+===
+select ename from emp where ename not like '%s';
++--------+
+| ename  |
++--------+
+| SMITH  |
+| ALLEN  |
+| WARD   |
+| MARTIN |
+| BLAKE  |
+| CLARK  |
+| SCOTT  |
+| KING   |
+| TURNER |
+| FORD   |
+| MILLER |
+| gopal  |
++--------+
+
+Q3:
+===
+select ename from emp where ename like '_a%';
++--------+
+| ename  |
++--------+
+| WARD   |
+| MARTIN |
+| JAMES  |
++--------+
+
+Q4:
+===
+select ename from emp where hiredate like '_____01%';
++--------+
+| ename  |
++--------+
+| ADAMS  |
+| MILLER |
++--------+
+
+
+Q5:
+===
+select ename from emp where hiredate like '1981%';
++--------+
+| ename  |
++--------+
+| ALLEN  |
+| WARD   |
+| JONES  |
+| MARTIN |
+| BLAKE  |
+| CLARK  |
+| KING   |
+| TURNER |
+| JAMES  |
+| FORD   |
++--------+
+
+Q6:
+===
+select ename from emp where day(hiredate) between 1 and 9;
++--------+
+| ename  |
++--------+
+| JONES  |
+| BLAKE  |
+| CLARK  |
+| SCOTT  |
+| TURNER |
+| JAMES  |
+| FORD   |
++--------+
+
+
+Q7:
+===
+select ename from emp where sal > 9999;
+Empty set (0.00 sec)
+
+Q8:
+===
+select ename from emp where comm is null;
++--------+
+| ename  |
++--------+
+| SMITH  |
+| JONES  |
+| BLAKE  |
+| CLARK  |
+| SCOTT  |
+| KING   |
+| ADAMS  |
+| JAMES  |
+| FORD   |
+| MILLER |
+| gopal  |
++--------+
+
+Q9:
+===
+select ename from emp where comm is not null;
++--------+
+| ename  |
++--------+
+| ALLEN  |
+| WARD   |
+| MARTIN |
+| TURNER |
++--------+
+
+
+

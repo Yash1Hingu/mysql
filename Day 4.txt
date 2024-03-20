@@ -1,0 +1,196 @@
+auto-commit diable:
+===================
+set autocommit=0;
+
+
+commit-rollback:
+================
+
+Orcale:
+=======
+1.abnormal termination
+	not commit all dml commands.
+
+2.exit termination:
+	commit all dml commands.
+
+3. dml followed by ddl commands.
+	commited all dml commands which occurs before ddl command.
+
+	dml
+	dml
+	ddl -> commit upto here.
+	dml
+	dml -> not save this dml commands.
+
+	-> ddl is autocommited commands.
+
+
+
+Script of sql:
+==============
+-> sql script: combination of multiple sql commands.
+-> execute any where.
+
+
+Ex:
+====
+1. create .sql file.
+2. write sql query in that file.
+3. copy the path.
+4. write command in sql.
+mysql> source C:\Users\yashd\OneDrive\Desktop\DBMS-Impacr\mysqlDB.sql;
+
+
+msqlDB.sql
+============
+drop database if exists mysqltestDB;
+
+create database mysqltestDB;
+
+use mysqltestDB;
+
+create table product(pid int,pname varchar(10),price int);
+
+insert into product values(1,'mouse',300),(2,'pendrive',400),(3,'monitor',14000);
+
+select * from product;
+
+
+SET OPERATORS:
+==============
+UNION
+UNIONALL
+
+
+Create index on table:
+======================
+
+create index i_fn_ln on stud_info(firstname,lastname);
+
+before index creation:
+======================
+-> it compare with all row.
+
+after index creation:
+======================
+-> it comapre with for particulr row data.
+
+
+See which index apply on stud_info table:
+=========================================
+
+mysql> show index from stud_info from n501;
++-----------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+| Table     | Non_unique | Key_name | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment | Visible | Expression |
++-----------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+| stud_info |          1 | i_fn_ln  |            1 | firstname   | A         |           5 |     NULL |   NULL | YES  | BTREE      |         |               | YES     | NULL       |
+| stud_info |          1 | i_fn_ln  |            2 | lastname    | A         |           5 |     NULL |   NULL | YES  | BTREE      |         |               | YES     | NULL       |
++-----------+------------+----------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+
+
+
+Drop index:
+===========
+
+mysql>  alter table stud_info drop index i_fn_ln;
+Query OK, 0 rows affected (0.01 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> show index from stud_info from n501;
+Empty set (0.00 sec)
+
+
+UNIQUE INDEX:
+=======
+-> unique index => unique + index apply.
+
+Ex:
+---
+create unique index un_in_fn on stud_info(firstname);
+
+show create table stud_info; --see all constraints.
+
+explain select * from stud_info where firstname='kanav'; --only 1 row.-
+
+-> improve the overall performance.
+
+
+
+data in variable:
+=================
+
+
+Declare Variable:
+------------------
+mysql> set @name='yash hingu';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select @name;
++------------+
+| @name      |
++------------+
+| yash hingu |
++------------+
+1 row in set (0.00 sec)
+
+
+use with query:
+----------------
+mysql> set @dno = 20;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select * from emp where deptno=@dno;
++-------+-------+---------+------+------------+---------+------+--------+
+| empno | ename | job     | mgr  | hiredate   | sal     | comm | deptno |
++-------+-------+---------+------+------------+---------+------+--------+
+|  7369 | SMITH | CLERK   | 7902 | 1980-12-17 |  800.00 | NULL |     20 |
+|  7566 | JONES | MANAGER | 7839 | 1981-04-02 | 2975.00 | NULL |     20 |
+|  7788 | SCOTT | ANALYST | 7566 | 1982-12-09 | 3000.00 | NULL |     20 |
+|  7876 | ADAMS | CLERK   | 7788 | 1983-01-12 | 1100.00 | NULL |     20 |
+|  7902 | FORD  | ANALYST | 7566 | 1981-12-03 | 3000.00 | NULL |     20 |
++-------+-------+---------+------+------------+---------+------+--------+
+5 rows in set (0.00 sec)
+
+
+Switch case:
+------------
+mysql> select empno,ename,case sal
+    -> when 5000 then 'highest salary'
+    -> when 3000 then 'low salary'
+    -> else 'daily wages'
+    -> end as salary from emp;
+
+greater or less with case:
+================
+mysql> select empno,ename,sal,case
+    -> when sal>=5000 then 'highest salary'
+    -> when sal>2000 and sal <= 3000 then 'low salary'
+    -> else 'daily wages'
+    -> end as status from emp;
+
+
+
+
+If Condition:
+=============
+
+Ex:
+---
+mysql> select if(10>3,'greater','lesser than 5');
+
+Ex:
+----
+mysql> select sal,if(sal>=5000,'high salary','low salary') from emp;
+
+
+
+176. Second Highest Salary:
+============================
+# Write your MySQL query statement below
+select distinct if(count(salary) = 0,null,salary) as SecondHighestSalary from (select salary,dense_rank() over (order by salary desc) 
+as dnk from Employee) dnkemp where dnkemp.dnk = 2;
+
+
+
+

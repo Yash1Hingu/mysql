@@ -1,0 +1,273 @@
+Create User:
+============
+create user 'raj'@'localhost' identified by 'raj';
+
+grant all privileges on * . * to 'raj'@'localhost';
+
+see all users:
+==============
+select user,host,account_locked from mysql.user;
+
+
+drop the user:
+==============
+drop user 'raj@localhost';
+
+drop user 'rah'@'localhost';
+
+How to login with paritculer user name:
+=======================================
+
+Copy Mysql serve path:
+----------------------
+C:\Program Files\MySQL\MySQL Server 8.0\bin
+
+Set ENV variable:
+-----------------
+Go to env variables settings.
+click on user's env -> path
+edit the path
+new path
+paste path where mysql server is installed.
+
+
+Open CMD:
+---------
+mysql -u <username> -p
+<password>
+
+Ex:
+---
+mysql -u raj -p
+Enter Password: ****
+
+
+
+Lock user:
+==========
+
+Locking user:
+-------------
+alter user 'raj'@'localhost' account lock;
+
+check user is lock or not:
+--------------------------
+select user,host,account_locked from mysql.user;
++------------------+-----------+----------------+
+| user             | host      | account_locked |
++------------------+-----------+----------------+
+| mysql.infoschema | localhost | Y              |
+| mysql.session    | localhost | Y              |
+| mysql.sys        | localhost | Y              |
+| raj              | localhost | Y              |
+| root             | localhost | N              |
++------------------+-----------+----------------+
+
+
+Loging to raj user:
+-------------------
+C:\Users\yashd>mysql -u raj -p
+Enter password: ***
+ERROR 3118 (HY000): Access denied for user 'raj'@'localhost'. Account is locked.
+
+
+Concurrency:
+============
+
+Two Session create for 1 user.
+
+Session 1
+table is lock
+
+Session 2
+table is waiting for unlock the session 1.
+
+Session 1
+table is unlock
+
+Session 2
+table is getted which query is perform.
+
+When one work is process that time other work in waiting when 1 work complete then next work start.
+
+
+
+So Avoid this:
+==============
+
+LOCK and UNLOCK Table:
+----------------------
+
+S1:
+---
+lock tables test501 write;
+
+S2:
+--- 
+select * from test501;
+-- wait for unlock
+
+S1:
+---
+ unlock tables;
+
+S2:
+---
+select * from test501;
+-- unlocked table
++------+------+
+| id   | name |
++------+------+
+|    1 | yash |
++------+------+
+
+
+
+
+
+Function:
+=========
+
+return all data:
+-----------------
+mysql> delimiter //
+mysql> create procedure ex2()
+    -> begin
+    -> select * from emp;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> delimiter ;
+mysql> call ex2();
+
+
+get arguement:
+--------------
+
+mysql> create procedure ex3(in dno decimal)
+    -> begin
+    -> select * from emp where deptno = dno;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> delimiter ;
+mysql> call ex3(10);
+
+
+
+return max salary in variable
+==============================
+mysql> create procedure ex4(out ms decimal)
+    -> begin
+    -> select max(sal) into ms from emp;
+    -> end //
+
+delimiter ;
+
+select @s;
+
+
+in and out(arg , return):
+=========================
+
+mysql> delimiter //
+mysql> create procedure ex5(in eno decimal,out name varchar(20))
+    -> begin
+    -> select ename from emp where empno=eno;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> delimiter ;
+mysql> call ex5(7566,@s);
+
+
+
+
+Show all the procedures:
+========================
+mysql> show procedure status where db='n501';
+
+
+
+drop the procedure:
+====================
+mysql> drop procedure ex5;
+
+
+
+Sum two numbers:
+================
+
+mysql> delimiter //
+mysql> create procedure ex_sum(IN a int,IN b int,OUT c int)
+    -> begin
+    -> set c = a+b;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> delimiter ;
+mysql> call ex_sum(2,3,@s);
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> select @s;
++------+
+| @s   |
++------+
+|    5 |
++------+
+1 row in set (0.00 sec)
+
+
+
+inout:
+======
+mysql> delimiter //
+mysql> create procedure ex6(inout v_n decimal)
+    -> begin
+    -> select max(sal) into v_n  from emp where deptno=v_n;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> delimiter ;
+mysql> set @n = 10;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> call ex6(@n);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select @n;
++------+
+| @n   |
++------+
+| 5000 |
++------+
+1 row in set (0.00 sec)
+
+
+
+
+Declare , set & diaplay variables:
+==================================
+mysql> create procedure ex7()
+    -> begin
+    -> declare a int;
+    -> declare b varchar(10);
+    -> declare c float;
+    -> set a = 10;
+    -> set b = 'welcome';
+    -> set c = 200;
+    -> select a,b,c;
+    -> end //
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> delimiter ;
+mysql> call ex7();
++------+---------+------+
+| a    | b       | c    |
++------+---------+------+
+|   10 | welcome |  200 |
++------+---------+------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
