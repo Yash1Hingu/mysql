@@ -1,237 +1,170 @@
-# MySQL Commands and Examples
+Sure, here is a README file based on the SQL queries and concepts you provided:
+
+---
+
+# SQL Queries and Concepts
 
 ## Table of Contents
 
-- [Create User](#create-user)
-- [See All Users](#see-all-users)
-- [Drop User](#drop-user)
-- [Login with a Specific User](#login-with-a-specific-user)
-- [Lock User](#lock-user)
-- [Check User Lock Status](#check-user-lock-status)
-- [Concurrency](#concurrency)
-  - [Avoid This](#avoid-this)
-- [Procedure](#procedure)
-  - [Return All data](#return-all-data)
-  - [Get Argument](#get-argument)
-  - [Return Max Salary in Variable](#return-max-salary-in-variable)
-  - [In and Out (Arg, Return)](#in-and-out-arg-return)
+1. [Creating Users and Granting Privileges](#creating-users-and-granting-privileges)
+2. [Viewing and Dropping Users](#viewing-and-dropping-users)
+3. [Logging in with a Specific Username](#logging-in-with-a-specific-username)
+4. [Locking and Checking User Lock Status](#locking-and-checking-user-lock-status)
+5. [Concurrency Handling](#concurrency-handling)
+6. [Creating and Dropping Procedures](#creating-and-dropping-procedures)
+7. [Working with Functions](#working-with-functions)
+8. [Summing Numbers and Using Inout Parameters](#summing-numbers-and-using-inout-parameters)
+9. [Declaring, Setting, and Displaying Variables](#declaring-setting-and-displaying-variables)
 
+---
 
+## Creating Users and Granting Privileges
 
-## Create User
-
-To create a new user in MySQL, use the following commands:
+To create a new user 'raj' with a password 'raj' and grant all privileges, use the following SQL commands:
 
 ```sql
 CREATE USER 'raj'@'localhost' IDENTIFIED BY 'raj';
-GRANT ALL PRIVILEGES ON * . * TO 'raj'@'localhost';
+
+GRANT ALL PRIVILEGES ON *.* TO 'raj'@'localhost';
 ```
 
-This creates a user named 'raj' with full privileges.
+---
 
-## See All Users
+## Viewing and Dropping Users
 
-You can view all users and their account status using the following query:
+To view all users in MySQL and drop a user, you can use the following SQL queries:
 
 ```sql
 SELECT user, host, account_locked FROM mysql.user;
+
+DROP USER 'raj'@'localhost';
 ```
 
-This query displays the usernames, hosts, and whether the accounts are locked or not.
+---
 
-## Drop User
-
-To remove a user, use the `DROP USER` command:
-
-```sql
-DROP USER 'raj@localhost';
-DROP USER 'rah@localhost';
-```
-
-These commands drop the users 'raj' and 'rah' from the MySQL server.
-
-## Login with a Specific User
+## Logging in with a Specific Username
 
 To log in with a particular username, follow these steps:
 
-1. Copy the MySQL server path: `C:\Program Files\MySQL\MySQL Server 8.0\bin`
+1. Copy the MySQL server path. Example: `C:\Program Files\MySQL\MySQL Server 8.0\bin`
 2. Set the environment variable:
    - Go to environment variables settings.
    - Click on user's environment -> path.
-   - Edit the path and paste the MySQL server path.
-3. Open CMD and run the following command:
-   ```bash
+   - Edit the path and add the MySQL server path.
+3. Open CMD and enter the following command:
+   ```shell
    mysql -u <username> -p
    ```
-   For example, to log in as user 'raj', use:
-   ```bash
-   mysql -u raj -p
-   ```
-   Enter the password when prompted.
 
-## Lock User
+Example:
+```shell
+mysql -u raj -p
+Enter Password: ****
+```
 
-To lock a user's account, use the following command:
+---
+
+## Locking and Checking User Lock Status
+
+You can lock a user and check their lock status using these SQL commands:
 
 ```sql
 ALTER USER 'raj'@'localhost' ACCOUNT LOCK;
-```
 
-This command locks the account of user 'raj' on the localhost.
-
-## Check User Lock Status
-
-You can check if a user's account is locked or not using the query:
-
-```sql
 SELECT user, host, account_locked FROM mysql.user;
 ```
 
-This query shows the lock status of users in the MySQL server.
-
-## Concurrency
-
-Handling concurrency involves managing multiple sessions and ensuring data integrity. Consider using table locking and unlocking strategies to avoid conflicts.
-
-```sql
-Two Session create for 1 user.
-
-Session 1
-table is lock
-
-Session 2
-table is waiting for unlock the session 1.
-
-Session 1
-table is unlock
-
-Session 2
-table is getted which query is perform.
-
-When one work is process that time other work in waiting when 1 work complete then next work start.
-```
-
-### Avoid This
-
-Lock and Unlock table
-```sql
-S1:
 ---
-lock tables test501 write;
 
-S2:
---- 
-select * from test501;
--- wait for unlock
+## Concurrency Handling
 
-S1:
+Concurrency can be managed using locking and unlocking tables. Example:
+
+```sql
+-- Session 1
+LOCK TABLES test501 WRITE;
+
+-- Session 2
+SELECT * FROM test501; -- Waits for unlock
+
+-- Session 1
+UNLOCK TABLES;
+
+-- Session 2
+SELECT * FROM test501; -- Table unlocked
+```
+
 ---
- unlock tables;
 
-S2:
+## Creating and Dropping Procedures
+
+To create and drop procedures in MySQL, use the following syntax:
+
+```sql
+CREATE PROCEDURE procedure_name(parameters)
+BEGIN
+    -- Procedure logic
+END;
+
+DROP PROCEDURE procedure_name;
+```
+
 ---
-select * from test501;
--- unlocked table
-+------+------+
-| id   | name |
-+------+------+
-|    1 | yash |
-+------+------+
-```
 
+## Working with Functions
 
-## Procedure
-
-### Return All data:
+You can create functions to return data or perform specific tasks. Example:
 
 ```sql
-mysql> delimiter //
-mysql> create procedure ex2()
-    -> begin
-    -> select * from emp;
-    -> end //
-Query OK, 0 rows affected (0.01 sec)
+-- Return all data
+CREATE PROCEDURE ex2()
+BEGIN
+    SELECT * FROM emp;
+END;
 
-mysql> delimiter ;
-mysql> call ex2();
+CALL ex2();
 ```
 
-This procedure selects all columns from the emp table.
+---
 
-After defining the procedure, you switched back the delimiter to the default `;` and then called the `ex2` procedure using `call ex2();`
+## Summing Numbers and Using Inout Parameters
 
-
-### Get Argument
-
-```sql
-mysql> create procedure ex3(in dno decimal)
-    -> begin
-    -> select * from emp where deptno = dno;
-    -> end //
-Query OK, 0 rows affected (0.01 sec)
-
-mysql> delimiter ;
-mysql> call ex3(10);
-```
-
-creates a stored procedure named ex3 in MySQL with an input parameter dno of type decimal. 
-
-The procedure selects all columns from the emp table where the deptno column matches the input parameter dno.
-
-### return max salary in variable
+You can create procedures to sum numbers and use inout parameters. Example:
 
 ```sql
-mysql> create procedure ex4(out ms decimal)
-    -> begin
-    -> select max(sal) into ms from emp;
-    -> end //
+-- Sum two numbers
+CREATE PROCEDURE ex_sum(IN a INT, IN b INT, OUT c INT)
+BEGIN
+    SET c = a + b;
+END;
 
-delimiter ;
-
-select @s;
-```
-
-creates a stored procedure named `ex4` in MySQL with an output parameter `ms` of type `decimal`. The procedure selects the maximum value from the `sal` column in the `emp` table and stores it into the output parameter `ms`.
-
-After defining the procedure, changed the delimiter to `;` and then attempted to select the value of the output parameter `@s`. However, the output parameter `ms` is local to the stored procedure and cannot be directly accessed outside of it using `@s`.
-
-To use the output parameter `ms` from the stored procedure `ex4`, you would typically call the procedure and pass an OUT variable to receive the result. For example:
-
-```sql
-CALL ex4(@result);
-SELECT @result;
-```
-
-This would call the `ex4` procedure and store the result in the variable `@result`, which you can then select to see the value.
-
-
-### in and out (arg,return)
-
-```sql
-mysql> delimiter //
-mysql> create procedure ex5(in eno decimal,out name varchar(20))
-    -> begin
-    -> select ename from emp where empno=eno;
-    -> end //
-Query OK, 0 rows affected (0.01 sec)
-
-mysql> delimiter ;
-mysql> call ex5(7566,@s);
-```
-
-
-creates a stored procedure named `ex5` in MySQL with an input parameter `eno` of type `decimal` and an output parameter `name` of type `varchar(20)`. The procedure selects the employee name (`ename`) from the `emp` table where the `empno` column matches the input parameter `eno`, and stores the result into the output parameter `name`.
-
-
-After defining the procedure, switched back the delimiter to the default `;` and then called the `ex5` procedure with the argument `7566` for the input parameter `eno` and an OUT variable `@s` to receive the result for the output parameter `name`.
-
-
-want to see the value of the output parameter `name` stored in `@s`, you can execute the following query after calling the procedure:
-
-```sql
+CALL ex_sum(2, 3, @s);
 SELECT @s;
 ```
 
-This will display the employee name corresponding to the input `empno` `7566`.
+---
 
+## Declaring, Setting, and Displaying Variables
 
+Variables can be declared, set, and displayed within procedures. Example:
+
+```sql
+CREATE PROCEDURE ex7()
+BEGIN
+    DECLARE a INT;
+    DECLARE b VARCHAR(10);
+    DECLARE c FLOAT;
+
+    SET a = 10;
+    SET b = 'welcome';
+    SET c = 200;
+
+    SELECT a, b, c;
+END;
+
+CALL ex7();
+```
+
+---
+
+This README file provides an overview of SQL queries, user management, concurrency handling, procedures, functions, and variable usage in MySQL.

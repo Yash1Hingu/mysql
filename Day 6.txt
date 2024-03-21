@@ -1,0 +1,430 @@
+Functions:
+==========
+
+Ex:
+---
+
+Maximum salary:
+========
+
+mysql> delimiter //
+
+-- Function Creation
+mysql> create function ms()
+    -> returns decimal
+    -> deterministic
+    -> begin
+    -> declare v_m decimal;
+    -> select max(sal) into v_m from emp;
+    -> return v_m;
+    -> end //
+mysql> delimiter ;
+
+-- Function call
+mysql> select ms() as maximumsal;
+
+
+Print Custom String:
+====================
+
+-- function defination
+mysql> create function print(name varchar(20))
+    -> returns varchar(20)
+    -> deterministic
+    -> begin
+    -> declare e_name varchar(20);
+    -> set e_name = concat("Welcome ",name);
+    -> return e_name;
+    -> end //
+
+
+-- function call
+mysql> select print(ename) from emp;
+    -> //
+
+
+Sum Of 3 Digit:
+================
+
+mysql> create function addition(a int,b int,c int)
+    -> returns int
+    -> deterministic
+    -> begin
+    -> declare v_sum int;
+    -> set v_sum = a+b+c;
+    -> return v_sum;
+    -> end //
+Query OK, 0 rows affected (0.02 sec)
+
+
+Test:
+-----
+mysql> create table marks(a int,b int,c int);
+insert into marks values(1,2,3),(2,3,4),(5,6,7);
+
+ select addition(a,b,c) from marks;
++-----------------+
+| addition(a,b,c) |
++-----------------+
+|               6 |
+|               9 |
+|              18 |
++-----------------+
+
+
+to list all functions:
+======================
+show function status where db='n501';
+
+
+to display the code of your function:
+=====================================
+show create function addition;
+
+
+
+
+DATE:
+=====
+
+sysdate():
+===========
+
+mysql> select sysdate(),current_date();
++---------------------+----------------+
+| sysdate()           | current_date() |
++---------------------+----------------+
+| 2024-03-21 11:10:16 | 2024-03-21     |
++---------------------+----------------+
+1 row in set (0.01 sec)
+
+now()
+======
+
+mysql> select now(),sysdate(),current_date();
++---------------------+---------------------+----------------+
+| now()               | sysdate()           | current_date() |
++---------------------+---------------------+----------------+
+| 2024-03-21 11:10:41 | 2024-03-21 11:10:41 | 2024-03-21     |
++---------------------+---------------------+----------------+
+1 row in set (0.00 sec)
+
+
+get current date:
+=================
+
+date(now()):
+============
+
+mysql> select date(now());
++-------------+
+| date(now()) |
++-------------+
+| 2024-03-21  |
++-------------+
+1 row in set (0.00 sec)
+
+
+curdate()
+==========
+
+mysql> select curdate();
++------------+
+| curdate()  |
++------------+
+| 2024-03-21 |
++------------+
+
+
+
+display custom date:
+--------------------
+
+mysql> select hiredate,date_format(hiredate,'%m_%d_%y') from emp;
++------------+----------------------------------+
+| hiredate   | date_format(hiredate,'%m_%d_%y') |
++------------+----------------------------------+
+| 1980-12-17 | 12_17_80                         |
+| 1981-02-20 | 02_20_81                         |
+
+
+mysql> select hiredate,date_format(hiredate,'%M_%d_%y') from emp;
++------------+----------------------------------+
+| hiredate   | date_format(hiredate,'%M_%d_%y') |
++------------+----------------------------------+
+| 1980-12-17 | December_17_80                   |
+| 1981-02-20 | February_20_81                   |
+| 1981-02-22 | February_22_81                   |
+
+
+
+mysql> select hiredate,date_format(hiredate,'%M_%d_%Y') from emp;
++------------+----------------------------------+
+| hiredate   | date_format(hiredate,'%M_%d_%Y') |
++------------+----------------------------------+
+| 1980-12-17 | December_17_1980                 |
+| 1981-02-20 | February_20_1981                 |
+| 1981-02-22 | February_22_1981                 |
+
+
+
+mysql> select hiredate,date_format(hiredate,'%M_%D_%Y') from emp;
++------------+----------------------------------+
+| hiredate   | date_format(hiredate,'%M_%D_%Y') |
++------------+----------------------------------+
+| 1980-12-17 | December_17th_1980               |
+| 1981-02-20 | February_20th_1981               |
+
+
+
+Date Diffrences:
+================
+
+mysql> select datediff('2019-08-04','2019-08-01') diff;
++------+
+| diff |
++------+
+|    3 |
++------+
+1 row in set (0.01 sec)
+
+
+
+current date and hiredate diff:
+===============================
+
+mysql> select hiredate,datediff(date(now()),hiredate) diff from emp;
++------------+-------+
+| hiredate   | diff  |
++------------+-------+
+| 1980-12-17 | 15800 |
+| 1981-02-20 | 15735 |
+| 1981-02-22 | 15733 |
+| 1981-04-02 | 15694 |
+| 1981-09-28 | 15515 |
+
+-> it return in days.
+
+in years:
+=========
+
+mysql> select hiredate,CEILING(datediff(date(now()),hiredate)/365) diff from emp;
++------------+------+
+| hiredate   | diff |
++------------+------+
+| 1980-12-17 |   44 |
+| 1981-02-20 |   44 |
+| 1981-02-22 |   44 |
+| 1981-04-02 |   43 |
+| 1981-09-28 |   43 |
+
+
+
+
+DATE_ADD():
+===========
+
+mysql> select '2019-08-04' actual,
+    -> date_add('2019-08-04',INTERVAL 1 day) 'added 1 day',
+    -> date_add('2019-08-04',INTERVAL 1 week) 'added 1 week',
+    -> date_add('2019-08-04',INTERVAL 1 month) 'added 1 month',
+    -> date_add('2019-08-04',INTERVAL 1 year) 'added 1 year';
++------------+-------------+--------------+---------------+--------------+
+| actual     | added 1 day | added 1 week | added 1 month | added 1 year |
++------------+-------------+--------------+---------------+--------------+
+| 2019-08-04 | 2019-08-05  | 2019-08-11   | 2019-09-04    | 2020-08-04   |
++------------+-------------+--------------+---------------+--------------+
+
+
+
+To add both days and months to a date in MySQL
+==============================================
+
+mysql> SELECT
+    ->     '2019-08-04' AS actual,
+    ->     DATE_ADD(DATE_ADD('2019-08-04', INTERVAL 1 DAY), INTERVAL 1 MONTH) AS 'added 1 day and 1 month';
++------------+-------------------------+
+| actual     | added 1 day and 1 month |
++------------+-------------------------+
+| 2019-08-04 | 2019-09-05              |
++------------+-------------------------+
+1 row in set (0.00 sec)
+
+
+
+
+extract()
+=========
+
+mysql> select extract(day from '2020-08-04');
++--------------------------------+
+| extract(day from '2020-08-04') |
++--------------------------------+
+|                              4 |
++--------------------------------+
+
+mysql> select extract(MONTH from '2020-08-04');
++----------------------------------+
+| extract(MONTH from '2020-08-04') |
++----------------------------------+
+|                                8 |
++----------------------------------+
+
+
+str_to_date()
+=============
+
+-> 
+The STR_TO_DATE() function in MySQL is used to convert a string into a date value based on a specified format. 
+
+
+mysql> SELECT STR_TO_DATE('20220321', '%Y%m%d') AS converted_date;
++----------------+
+| converted_date |
++----------------+
+| 2022-03-21     |
++----------------+
+1 row in set (0.01 sec)
+
+
+
+TRIGGER:
+========
+
+
+Types:
+------
+1. Row-level
+2. Statement level(not supported in mysql).
+
+
+Pseudo columns:
+
+NEW - new values
+OLD - old values
+
+Que:
+===
+Write a trigger that trigger when user insert the records in table
+trigger convert lowercase to uppercase.
+
+Ans:
+====
+mysql> select * from emp13;
++-------+-------+---------+
+| empno | ename | sal     |
++-------+-------+---------+
+|     1 | raj   | 4000.00 |
++-------+-------+---------+
+1 row in set (0.01 sec)
+
+-- trigger
+mysql> delimiter //
+mysql> create trigger trg_emp13
+    -> before insert on emp13
+-- trigger for each row when records are inserted.
+    -> for each row
+    -> begin
+    -> set new.ename = upper(new.ename);
+    -> end //
+Query OK, 0 rows affected (0.02 sec)
+
+
+-- insert data that trigger.
+mysql> insert into emp13 values(2,'yash',5000);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> select * from emp13;
++-------+-------+---------+
+| empno | ename | sal     |
++-------+-------+---------+
+|     1 | raj   | 4000.00 |
+|     2 | YASH  | 5000.00 |
++-------+-------+---------+
+
+Que:
+====
+store products backup:
+----------------------
+
+create table product(pid int primary key auto_increment,pname varchar(20),price float);
+create table product_insert_backup(pid int,createdBy varchar(20),createdDate date);
+
+delimiter //
+
+create trigger trg_product
+after insert on product
+for each row
+begin
+declare vUser varchar(20);
+select user() into vUser;
+insert into product_insert_backup values(last_insert_id(),vUser,current_date());
+end //
+
+delimiter ;
+
+insert into product (pname,price) values ('tv',50000);
+
+
+
+Que (backup_on_emp_base table.png):
+==================================
+
+ON Update:
+-----------
+
+create table emp_base(empno int primary key auto_increment,ename varchar(20),sal float);
+
+
+create table emp_base_update_backup(N_ename varchar(20),O_ename varchar(20),N_sal float,O_sal float,createdBy varchar(20),createdOn date);
+
+
+insert into emp_base(ename,sal) values('yash',7000);
+insert into emp_base(ename,sal) values('prit',9000
+);
+
+
+delimiter //
+
+create trigger trg_emp
+after update on emp_base
+for each row
+begin
+insert into emp_base_update_backup values(new.ename,old.ename,new.sal,old.sal,user(),current_date());
+end //
+
+delimiter ;
+
+update emp_base set ename='dhaval',sal=10000 where
+ empno=2;
+select * from emp_base_update_backup;
+
+
+
+On Delete:
+----------
+
+create table emp_base_delete_backup(empno int,ename varchar(20),sal float);
+
+delimiter //
+
+ create trigger trg_emp_delete
+ before delete on emp_base
+ for each row
+ begin
+ insert into emp_base_delete_backup    values(old.empno,old.ename,old.sal);
+end //
+
+
+delimiter ;
+
+delete from emp_base where empno=2;
+
+select * from emp_base_delete_backup;
+
+
+
+Display all triggers:
+=====================
+
+show triggers from n501 where `table` = 'emp_base';

@@ -4,9 +4,189 @@
 - [Day 1](#day-1)
 - [Day 5](#day-5)
 
-This README file contains notes on SQL commands and operations.
-
 ## Day 1
+
+### What is Database
+A Data Base is an Organized Collection of Data which can be easily
+accessed, managed and updated.
+In today’s World, Data plays a vital role in every business. In our day to day life, we see or
+interact with many applications and Software’s, every application that we see or work with will
+have two parts:
+
+1. GUI (Graphical User Interface / Front end)
+2. Database
+
+To keep it simple GUI is the part where user interacts with (like Facebook applications – look
+and feel) and the Data that we see in the application (like Facebook profile, messages, images
+and videos) are pulled from Database.
+
+
+End User who interacts with the application may not know how the data is being fetched and
+where so much of information is stored. Internally all the dynamic content that we see in the
+application is fetched from Database.
+
+Database and all its components should be designed and configured at the time of application
+development. Once the application is developed we will not be able to make changes to the
+database structure as every change will hugely affect the business application GUI code.
+It is very important to make sure that data is securely maintained and accurately stored. 
+
+So to maintain security and accuracy in database a set of rules / software system is defined and that
+we call it as DBMS (Data Base Management System – which performs all the operations on the
+database)
+
+### What is DBMS?
+
+```sql
+DBMS (Database Management System) is a software tool that is used to store and manage data
+in the Database
+```
+
+A database management system contains a set of programs that control the creation,
+maintenance, and use of a database. Like:
+
+Adding new data to the table.
+Modifying existing data.
+Deleting unwanted data.
+
+DBMS allows different user application programs to concurrently access the same database.
+Before Database and DBMS were introduced, traditional approach was to store data in flat files
+(physical files in system) but there were some disadvantages with it.
+
+
+### What is RDBMS?
+A relational database management system (RDBMS) is a Database Management System
+(DBMS) that is based on the relational model 
+
+introduced by E. F. Codd and most popular 
+databases currently in use are based on the relational database model. 
+
+To put in different words RDBMS is built on top of in which data is stored in tables and the relationships among 
+the data are maintained. 
+
+The data stored in a table is organized into rows and columns. Each row in a table represents an individual record and each column represents a field. 
+
+A record is an individual entry in the database.
+
+
+### SQL
+SQL stands for Structured Query Language. 
+
+It is used for storing and managing data in relational database management system (RDMS).
+
+It is a standard language for Relational Database System. It enables a user to create, 
+read, update and delete relational databases and tables.
+
+All the RDBMS like MySQL, Informix, Oracle, MS Access and SQL Server use SQL as their
+standard database language.
+SQL allows users to query the database in a number of ways, using English-like statements.
+
+### Rulse:
+
+SQL follows the following rules:
+
+Structure query language is not case sensitive. 
+
+Generally, keywords of SQL are written in uppercase.
+Statements of SQL are dependent on text lines. 
+
+We can use a single SQL statement on one or multiple text line.
+
+Using the SQL statements, you can perform most of the actions in a database.
+
+sql stands for structure query language designed for
+accessing and managing the data in the RDBMS
+
+Sql act as interface between user and database.
+
+
+### Why Sql ?
+
+Sql can retrieve records from the database.
+
+sql can insert record into the database
+
+sql can update record in to a database
+
+sql can provides privileges to pprocedures,functions,
+views, sequences----database objects
+
+
+
+### SQL is divided into five categories
+
+**DDl --DATA  DEFINITION LANGUAGE**
+
+```sql
+CMDS:CREATE,ALTER,TRUNCATE,DROP,RENAME
+```
+
+which deals with database schemas and descriptions, of how the data should reside in the database.
+
+**DML -- DATA MANIPULATION LANGUAGE**
+
+```sql
+CMDS:INSERT,UPDATE,DELETE
+```
+
+which deals with data manipulation and includes most common SQL statements such 
+INSERT, UPDATE, DELETE, etc., and it is used to store, modify, retrieve, delete and update data in a database.
+
+
+
+**DCL -- DATA CONTROL LANGUAGE**
+
+```sql
+GRANT,REVOKE
+```
+
+
+**TCL -- TRANSACTION CONTROL LANGUAGE**
+
+```sql
+COMMIT,ROLLBACK,SAVEPOINT
+```
+
+
+**DRL -- DATA RETRIVEAL LANGUAGE**
+
+```sql
+SELECT
+```
+
+
+### Datatypes
+
+***Number[(p,s)]**:-  this data is used to store numeric data
+                   maxisize we can store up to 38 digits
+                
+                 p--precision
+                 s--scale
+
+```sql
+  empno number
+ 
+  empno number(5)
+
+  sal  number(10,3); -- 10 is precision and 3 is scale.
+```
+
+  **Example**:
+   The precision is the number of digits in a number. It ranges from 1 to 38.
+   The scale is the number of digits to the right of the decimal point in a number. 
+    It ranges from -84 to 127.
+   
+   For example, the number 1234.56 has a precision of 6 and a scale of 2.
+   So to store this number, you need NUMBER(6,2).
+
+
+
+
+
+
+
+
+
+
 
 1. **Current Database Selection:**
    - To see the currently selected database: `select database();`
